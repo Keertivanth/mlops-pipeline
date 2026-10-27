@@ -1,0 +1,73 @@
+step-1: crrate virtual env
+python -m venv kiet-env
+
+step 2: activate
+source kiet-env\Scripts\activate
+step 3: creating working directory and switch to that
+mkdir mlops-first-pipeline
+cd mlops-first-pipeline
+
+step -4 :install req packages
+pip install -r requirements
+step -5 implement as a simple machine learning model
+step -6 train and save the model
+python train.py
+step 7: implement FastAPI and create endpoints
+step 8: start the API 
+uvicorn main:app --reloadp
+python -m uvicorn mainapp: --reload
+
+
+
+
+docker commands:
+docker ps 
+check running containers 
+
+docker ps -a 
+check all active/non-active containers 
+
+docker build -t mlops-iris-image-cs . 
+-t =tag name = name of the image 
+
+
+-------------------------phase -2-------------------------------------------
+
+docker run -d -p 8000:8000 --name mlops-cs-container mlops-iris-image-cs
+-----------------------------------------------------------------------------
+
+----------------------phase -3-----------------------------------------------
+Automate testing and CI/CD with github actions
+
+our goal :
+whenever we push code on github ,the system should automatically run test and build the docker image.
+later we will extend the same pipeline to publish the image and deploy install
+1.developer pushes the code
+2. github actions starts the workflow 
+3.triggered by a push or pull request 
+4. run tests and validate the model api behaviour 
+5. Build image and verify docker packaging
+
+Part-1: What are CI/CD?
+CI- CONTINUOUS INTEGRATION -Automatically validates the code changes through tests and build checks
+CD- CONTINUOUS DELIVERY-keep changes ready to release, with production release potentially requiring approval
+CD- CONTINUOUS DEPLOYMENT- Auromatically release changes go production when all required checks pass
+
+Automation testing+docker build
+-pytest+fastAPI TestClient+Github actions
+
+-mlops
+--tests
+---test_api.py
+--.github
+---workflows
+----ci.yaml
+
+Install two depeedencies
+pytest-It discovers and run automated tests
+httpx - fastAPI TestClient uses HTTPX to simulate HTTP requests to your  apllication without requiring you to start a seperate web server
+
+pip install httpx pytest
+
+now test the test cases 
+python -m pytest -v
