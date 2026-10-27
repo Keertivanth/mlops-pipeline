@@ -1,53 +1,52 @@
-# Github actions workflow
-# Github automatically looks for workflow file inside .github/workflows/
 
-#Give aworkflow a meaningful name
+# GitHub Actions workflow for the Iris ML API
+# GitHub automatically detects workflows inside .github/workflows/
+
 name: Iris ML API - CI Pipeline
 
-# Define when Github should run this workflow
+# Define when GitHub should run this workflow
 on:
   # Run CI whenever code is pushed to the main branch
   push:
     branches:
       - main
-  # Also validate proposed changes to the main branch
+
+  # Validate proposed changes to the main branch
   pull_request:
     branches:
       - main
 
-# Permissions are restricted to reading repo content only
+# Restrict permissions to read-only access to repository contents
 permissions:
   contents: read
 
 # Define the jobs that make up the pipeline
 jobs:
   test-and-build:
-    # github provides a fresh ubuntu VM for this job
+    # Run the job on a fresh Ubuntu virtual machine
     runs-on: ubuntu-latest
 
-    # Steps
     steps:
-      # Step-1: Download the repo content to the runner
+      # Step 1: Check out the repository
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step-2: Set up Python
-      - name: Install python on Runner
+      # Step 2: Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
 
-
-      # Step-3: Install the dependencies needed to run the tests
+      # Step 3: Install Python dependencies
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step-4: Execute th eautomated tests
+      # Step 4: Run automated tests
       - name: Run automated tests
         run: python -m pytest -v
 
-      # Step-5: Build the docker image
+      # Step 5: Build the Docker image
       - name: Build Docker image
         run: docker build -t iris-ml-api:${{ github.sha }} .
