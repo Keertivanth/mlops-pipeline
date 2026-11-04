@@ -22,7 +22,7 @@ permissions:
 
 # Define the jobs that make up the pipeline
 jobs:
-  test-and-build:
+  test:
     # Run the job on a fresh Ubuntu virtual machine
     runs-on: ubuntu-latest
 
@@ -47,6 +47,20 @@ jobs:
       - name: Run automated tests
         run: python -m pytest -v
 
-      # Step 5: Build the Docker image
-      - name: Build Docker image
-        run: docker build -t iris-ml-api:${{ github.sha }} .
+  build:
+    name: Build and Publish Docker Image
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    if:github.event_name=='push' && github.ref=='ref/heads/main'
+    steps:
+     -name: Checkout source code
+      uses: actions/checkout@v4
+
+    -name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    -name : Login to GHCR
+      uses : docker/login-action
+
