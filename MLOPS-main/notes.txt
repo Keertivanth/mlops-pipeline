@@ -114,83 +114,44 @@ git branch -M main
 git remote add origin https://github.com/sqb-codes/mlops-cs-first-pipeline.git
 git push -u origin main
 
-==================================
-Phase-4: MLFlow - Experiment Tracking and Model Registry
-==================================
-
-Progress so far:
-1. Train model and create FastAPI aaplication - Done
-2. Containerize the application with Docker - Done
-3. Automated tests and GitHub actions CI - Done
-4. Experiment tracking and model registry with MLFlow - Current
-5. Container registry and Cloud Deployment
-6. Production monitoring and drift detection
-7. Automated retraining and model promotion
 
 
-Why we need MLFlow ?
-- Imagine you train the same dataset ten times, changing the model parameters, dataset version
-- Without experiment tracking we might end up with file names model_v1.joblib, model_v2.joblib and so on...
-- MLFlow helps us maintain that record
-
-
-4 Major Concepts:
-- Experiment - Collection of related training runs
-- Run - One execution of training with specific parameters and results
-- Artifact - saved file produced by a run
-- Model Registry - Managed catalog of registered models and their versions
-
-Install MLFlow
-pip install mlflow
-
-
-Start MLFlow Tracking Server
+start mlflow:
 mlflow server \
---backend-store-uri sqlite:///mlflow.db \
---host 127.0.0.1 \
+--backend-store-uri sqlite:///mlflow.db\
+--host 0.0.0.0 \
 --port 6001
 
-Open browser and test URL:
-http://127.0.0.1:6001
 
+==================================
+Phase-4: MLflow Experiment Tracking and Model Registry
+==================================
 
-Evaluate and promote model vesions
-- Right now FastAPI application loads a model from a local file
-- This works for demo, but it becomes harder to manage when you have multiple model verions
+The training script now records parameters and metrics for every run.
+It also applies a model quality gate before registering a model:
+- Minimum test accuracy: 0.90
+- Registered model name: iris-classifier
+- Production alias: champion
 
-Example:
-Version-1: Initial model
-Version-2: retrained model
-Version-3: improved model
-
-We can assign the alias champion to the model version we want our application to use
-
-
-Load the champion model in FastAPI
-
-Containerize MLFlow connected API
-
-Restart mlflow server:
+Start the MLflow tracking server:
 mlflow server \
 --backend-store-uri sqlite:///mlflow.db \
 --host 0.0.0.0 \
---port 6001 \
---allowed-hosts "host.docker.internal,host.docker.internal:6001"
+--port 6001
 
+Train, evaluate, register, and promote the model:
+python train.py
 
-Build the updated image:
-docker build -t iris-ml-api-cs:v2 .
+The FastAPI application loads models:/iris-classifier@champion during
+startup. Set this variable when the tracking server is not local:
+MLFLOW_TRACKING_URI=http://127.0.0.1:6001
 
+Run the API:
+python -m uvicorn main:app --reload
 
-Start the container:
-docker run -d \
---name iris-ml-api-container \
--p 8000:8000 \
--e MLFLOW_TRACKING_URI=http://host.docker.internal:6001 \
-iris-ml-api-cs:v2
+Useful endpoints:
+- GET /health shows the serving model and champion version
+- POST /predict returns the Iris class prediction
 
-Automatically build and publish Docker images to ghcr:
-GHCR -Github container registry
-
-pull request to main
-push to main-Tests run +Build image +Publish Image
+Run automated tests without starting MLflow:
+python -m pytest -v

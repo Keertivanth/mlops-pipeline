@@ -84,7 +84,7 @@ def create_app(model_loader: Callable=load_mlflow_model,
     @app.post("/predict")
     def predict(data: IrisRequest, request: Request):
         model = request.app.state.model
-        
+
         features = [[
             data.sepal_length,
             data.sepal_width,
@@ -98,5 +98,7 @@ def create_app(model_loader: Callable=load_mlflow_model,
             "prediction": prediction,
             "class_name": ["setosa", "versicolor", "virginica"][prediction]
         }
+
+    return app
 
 app = create_app()

@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+
 import joblib
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
@@ -12,7 +14,9 @@ from mlflow import MlflowClient
 
 # Configure MLFlow Tracking
 # MLFlow server stores experiment metadata and model records
-mlflow.set_tracking_uri("http://127.0.0.1:6001")
+mlflow.set_tracking_uri(
+    os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:6001")
+)
 
 # Group related training runs under one experiment
 mlflow.set_experiment("iris-classification")
@@ -22,9 +26,12 @@ iris = load_iris()
 X = iris.data
 y = iris.target
 
-X_train, X_test, y_train, y_test = train_test_split(X, 
-                                                    y, 
-                                                    test_size=0.20)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+)
 
 
 n_estimators = 10
@@ -45,8 +52,9 @@ with mlflow.start_run() as run:
 
     # Build classifier using the selected parameters
     model = RandomForestClassifier(
-        n_estimators=n_estimators, 
-        random_state=random_state)
+        n_estimators=n_estimators,
+        random_state=random_state,
+    )
 
     # Fit the model on training data
     model.fit(X_train, y_train)

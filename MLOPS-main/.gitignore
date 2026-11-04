@@ -1,0 +1,19 @@
+
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.DSStore
+# Model files
+models/
+
+# Environment variables
+.env
+
+# Test and cache files
+.pytest_cache/
+.ipynb_checkpoints/
+
+mlops-first-pipeline/__pycache__
+mlops-first-pipeline/.pytest_cache
